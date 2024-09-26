@@ -24,5 +24,5 @@ object AppModule {
             .build()
     @Provides
     @Singleton
-    fun provideMetaDao(parcial1Db: Parcial1Db) = parcial1Db.ventasDao()
+    fun provideVentasDao(parcial1Db: Parcial1Db) = parcial1Db.ventasDao()
 }
