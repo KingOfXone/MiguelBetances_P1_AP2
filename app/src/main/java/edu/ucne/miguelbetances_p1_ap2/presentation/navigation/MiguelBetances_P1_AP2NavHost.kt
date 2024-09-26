@@ -8,34 +8,42 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
+import edu.ucne.miguelbetances_p1_ap2.presentation.navigation.ventas.VentasListScreen
 import edu.ucne.miguelbetances_p1_ap2.ui.theme.MiguelBetances_P1_AP2Theme
 
 @Composable
 fun MiguelBetances_P1_AP2NavHost(
-navHostController: NavHostController
+    navHostController: NavHostController
 ){
     NavHost(
-        startDestination = Screen.ListScreen,
+        startDestination = Screen.VentasScreen,
         navController = navHostController
     ) {
         composable<Screen.ListScreen> {
-            Button(
-                onClick = {
-                    navHostController.navigate(Screen.RegistroScreen(0))
-                }
-            ) {
-                Text(
-                    text = "Ir a la segunda pantalla"
-                )
-            }
-        }
-        composable<Screen.RegistroScreen> {
-            Text(
-                text = "Estas en la segunda pantalla"
+            VentasListScreen { }(
+                onCreate = {
+                    navHostController.navigate(Screen.VentasScreen(0))
+                },
+                onEdit = {
+                    navHostController.navigate(Screen.VentasScreen(it))
+                },
             )
         }
+        composable<Screen.VentasScreen> {
+            val args =  it.toRoute<Screen.VentasScreen>()
+            Screen.VentasScreen(
+                ventasId = args.id,
+                goBack = {
+                    navHostController.navigateUp()
+                }
+            )
+
+        }
     }
+
 }
+
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun MiguelBetances_P1_AP2NavHostPreview() {
@@ -45,5 +53,3 @@ fun MiguelBetances_P1_AP2NavHostPreview() {
             navHostController = navHostController)
     }
 }
-
-
