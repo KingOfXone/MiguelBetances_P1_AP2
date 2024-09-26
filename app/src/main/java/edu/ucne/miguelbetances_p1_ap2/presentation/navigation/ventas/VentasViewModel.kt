@@ -1,9 +1,11 @@
 package edu.ucne.miguelbetances_p1_ap2.presentation.navigation.ventas
+
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import edu.ucne.miguelbetances_p1_ap2.data.local.entities.VentasEntity
+import edu.ucne.miguelbetances_p1_ap2.data.repository.VentasRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -14,14 +16,9 @@ import javax.inject.Inject
 class VentasViewModel @Inject constructor(
 	private val ventaRepository: VentasRepository
 ) : ViewModel() {
+
 	private val _uiState = MutableStateFlow(UiState())
 	val uiState get() = _uiState.asStateFlow()
-
-	private suspend fun existsWithDescription(descripcion: String): Boolean {
-		return ventaRepository.find(descripcion) != null
-	}
-
-
 
 	init {
 		getVentas()
@@ -31,9 +28,9 @@ class VentasViewModel @Inject constructor(
 		viewModelScope.launch {
 			val state = _uiState.value
 			when {
-				state.descripcion.isBlank() -> {
+				state.datoCliente.isBlank() -> {
 					_uiState.update {
-						it.copy(errorMessages = "La descripción no puede estar vacía", successMessage = null)
+						it.copy(errorMessages = "Los datos del cliente no pueden estar vacíos", successMessage = null)
 					}
 				}
 				state.monto <= 0.0 -> {
@@ -43,13 +40,13 @@ class VentasViewModel @Inject constructor(
 				}
 				else -> {
 					try {
-						val exists = ventaRepository.find(state.descripcion)
+						val exists = ventaRepository.find(state.ventaId ?: 0)
 						if (exists != null && exists.ventaId != state.ventaId) {
 							_uiState.update {
-								it.copy(errorMessages = "Ya existe una venta con esta descripción", successMessage = null)
+								it.copy(errorMessages = "Ya existe una venta con estos datos del cliente", successMessage = null)
 							}
 						} else {
-							ventaRepository.save(state.ToEntity())
+							ventaRepository.save(state.toEntity())
 							_uiState.update {
 								it.copy(
 									successMessage = "Venta guardada exitosamente",
@@ -60,7 +57,7 @@ class VentasViewModel @Inject constructor(
 						}
 					} catch (e: Exception) {
 						_uiState.update {
-							it.copy(errorMessages = "Error al guardar la Venta", successMessage = null)
+							it.copy(errorMessages = "Error al guardar la venta", successMessage = null)
 						}
 					}
 				}
@@ -72,8 +69,12 @@ class VentasViewModel @Inject constructor(
 		_uiState.update {
 			it.copy(
 				ventaId = null,
-				descripcion = "",
+				datoCliente = "",
+				galon = 0.0,
 				monto = 0.0,
+				descuento = 0.0,
+				totalDescuento = 0.0,
+				total = 0.0,
 				errorMessages = null,
 				successMessage = null
 			)
@@ -87,8 +88,12 @@ class VentasViewModel @Inject constructor(
 				_uiState.update {
 					it.copy(
 						ventaId = venta?.ventaId,
-						descripcion = venta?.descripcion ?: "",
+						datoCliente = venta?.datoCliente ?: "",
 						monto = venta?.monto ?: 0.0,
+						galon = venta?.galon ?: 0.0,
+						descuento = venta?.descuento ?: 0.0,
+						totalDescuento = venta?.totalDescuento ?: 0.0,
+						total = venta?.total ?: 0.0,
 						errorMessages = null,
 						successMessage = null
 					)
@@ -100,7 +105,7 @@ class VentasViewModel @Inject constructor(
 	fun delete() {
 		viewModelScope.launch {
 			try {
-				val entityToDelete = _uiState.value.ToEntity()
+				val entityToDelete = _uiState.value.toEntity()
 				ventaRepository.delete(entityToDelete)
 
 				_uiState.update {
@@ -137,7 +142,7 @@ class VentasViewModel @Inject constructor(
 
 	fun onDescripcionChange(descripcion: String) {
 		_uiState.update {
-			it.copy(descripcion = descripcion, errorMessages = null, successMessage = null)
+			it.copy(datoCliente = descripcion, errorMessages = null, successMessage = null)
 		}
 	}
 
@@ -148,19 +153,25 @@ class VentasViewModel @Inject constructor(
 	}
 
 	data class UiState(
-		val ventaId: Int,
-		val descripcion: String = "",
+		val ventaId: Int? = null,  // Puede ser nullable
+		val datoCliente: String = "",
+		val galon: Double = 0.0,
 		val monto: Double = 0.0,
+		val totalDescuento: Double = 0.0,
+		val total: Double = 0.0,
+		val descuento: Double = 0.0,
 		val errorMessages: String? = null,
 		val successMessage: String? = null,
 		val ventas: List<VentasEntity> = emptyList()
 	)
 
-	fun UiState.ToEntity() = VentasEntity(
+	fun UiState.toEntity() = VentasEntity(
 		ventaId = ventaId,
-		descripcion = descripcion,
+		datoCliente = datoCliente,
 		monto = monto,
-		galon = TODO(),
-		descuento = TODO()
+		galon = galon,
+		descuento = descuento,
+		totalDescuento = totalDescuento,
+		total = total
 	)
 }

@@ -29,7 +29,7 @@ fun VentasListScreen(
 	)
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
 fun VentaListBodyScreen(
 	uiState: VentasViewModel.UiState,
@@ -72,7 +72,7 @@ fun VentaListBodyScreen(
 				contentPadding = PaddingValues(16.dp)
 			) {
 				items(uiState.ventas) { venta ->
-					ListVentaItem { }(
+					ListVentaItem (
 						venta = venta,
 						onEdit = onEdit
 					)
@@ -99,7 +99,7 @@ fun ListVentaItem(
 			modifier = Modifier.padding(16.dp)
 		) {
 			Text(
-				text = venta.descripcion,
+				text = venta.datoCliente,
 				style = MaterialTheme.typography.bodyLarge,
 				color = MaterialTheme.colorScheme.primary
 			)
@@ -109,6 +109,27 @@ fun ListVentaItem(
 				style = MaterialTheme.typography.bodyMedium,
 				color = MaterialTheme.colorScheme.onSurface
 			)
+			Text(
+				text = "Galón: ${venta.galon}",
+				style = MaterialTheme.typography.bodyLarge,
+				color = MaterialTheme.colorScheme.primary
+			)
+			Text(
+				text = "Descuento: ${venta.descuento}",
+				style = MaterialTheme.typography.bodyLarge,
+				color = MaterialTheme.colorScheme.primary
+			)
+			Text(
+				text = "Total descuento: ${venta.totalDescuento}",
+				style = MaterialTheme.typography.bodyLarge,
+				color = MaterialTheme.colorScheme.primary
+			)
+			Text(
+				text = "Total: ${venta.total}",
+				style = MaterialTheme.typography.bodyLarge,
+				color = MaterialTheme.colorScheme.primary
+			)
+			Spacer(modifier = Modifier.height(8.dp))
 		}
 	}
 }

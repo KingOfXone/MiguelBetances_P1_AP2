@@ -15,12 +15,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import edu.ucne.miguelbetances_p1_ap2.presentation.navigation.Screen
+
 
 @Composable
-fun Screen.VentasScreen(
+fun VentasScreen(
 	viewModel: VentasViewModel = hiltViewModel(),
-	ventasId,
+	ventasId: Int,
 	goBack: () -> Unit
 
 ) {
@@ -29,7 +29,7 @@ fun Screen.VentasScreen(
 	}
 	val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-	VentasBodyScreen { }(
+	VentasBodyScreen (
 		uiState = uiState,
 		onDescripcionChange = viewModel::onDescripcionChange,
 		onMontoChange = viewModel::onMontoChange,
@@ -61,23 +61,65 @@ fun VentasBodyScreen(
 	) {
 
 		OutlinedTextField(
-			value = uiState.descripcion,
+			value = uiState.datoCliente,
 			onValueChange = { onDescripcionChange(it) },
-			label = { Text("Descripción") },
+			label = { Text("Datos del cliente") },
 			modifier = Modifier.fillMaxWidth()
 		)
+
 		Spacer(modifier = Modifier.height(16.dp))
 
 
+
+		OutlinedTextField(
+			value = if (uiState.galon != 0.0) uiState.galon.toString() else "",
+			onValueChange = { newValue ->
+				newValue.toDoubleOrNull()?.let { onMontoChange(it) }
+			},
+			label = { Text("Galones") },
+			keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+			modifier = Modifier.fillMaxWidth()
+		)
+
+		OutlinedTextField(
+			value = if (uiState.descuento != 0.0) uiState.descuento.toString() else "",
+			onValueChange = { newValue ->
+				newValue.toDoubleOrNull()?.let { onMontoChange(it) }
+			},
+			label = { Text("Descuento aplicado") },
+			keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+			modifier = Modifier.fillMaxWidth()
+		)
 		OutlinedTextField(
 			value = if (uiState.monto != 0.0) uiState.monto.toString() else "",
 			onValueChange = { newValue ->
 				newValue.toDoubleOrNull()?.let { onMontoChange(it) }
 			},
-			label = { Text("Monto") },
+			label = { Text("Precio del galón") },
 			keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
 			modifier = Modifier.fillMaxWidth()
 		)
+		OutlinedTextField(
+			value = if (uiState.totalDescuento != 0.0) uiState.totalDescuento.toString() else "",
+			onValueChange = { newValue ->
+				newValue.toDoubleOrNull()?.let { onMontoChange(it) }
+			},
+			label = { Text("Con Descuento") },
+			keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+			modifier = Modifier.fillMaxWidth()
+		)
+
+		OutlinedTextField(
+			value = if (uiState.total != 0.0) uiState.total.toString() else "",
+			onValueChange = { newValue ->
+				newValue.toDoubleOrNull()?.let { onMontoChange(it) }
+			},
+			label = { Text("Total del Galon") },
+			keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+			modifier = Modifier.fillMaxWidth()
+		)
+
+
 		Spacer(modifier = Modifier.height(16.dp))
 
 
@@ -120,11 +162,11 @@ fun VentasBodyScreen(
 @Preview(showBackground = true)
 @Composable
 fun PreviewVentasBodyScreen() {
-	VentasBodyScreen { }(
+	VentasBodyScreen(
 		uiState = VentasViewModel.UiState(
-			descripcion = "Ahorro para viaje",
 			monto = 1000.0,
-			successMessage = "Venta guardada exitosamente"
+			successMessage = "Venta guardada exitosamente",
+			ventaId = 1
 		),
 		onDescripcionChange = {},
 		onMontoChange = {},
